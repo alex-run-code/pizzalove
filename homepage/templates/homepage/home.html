@@ -93,17 +93,24 @@ $(document).ready(function(){
 $("#button").click(function (e) {
 	e.preventDefault();
 	const csrftoken = Cookies.get('csrftoken');
-	console.log(csrftoken);
 	console.log('click');
 	$.ajax({
 		type: "POST",
 		url: "/api/like",
-		headers: { 'X-CSRFToken': csrftoken }
+		headers: { 'X-CSRFToken': csrftoken },
+	}).done(function(data) {
+		var userIndex = myChart.data['labels'].indexOf(data['user'])
+		if (userIndex == -1) {
+			myChart.data['labels'] = []
+			myChart.data['datasets'][0]['data'] = []
+			myChart.update()
+			LoadTables()
+		} else {
+			myChart.data['datasets'][0]['data'][userIndex] = data['quantity']
+			myChart.update()
+			$("#users").find("tr")[userIndex].innerHTML = "<tr><td>" + data['user'] + "</td><td>" + data['quantity'] + "</td></tr>"
+		};
 	});
-	myChart.data['labels'] = []
-	myChart.data['datasets'][0]['data'] = []
-    myChart.update()
-	LoadTables()
 });
 </script>
 {% endblock %}
